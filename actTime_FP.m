@@ -19,7 +19,6 @@ sti_f_ref = 60 ./ [3:5, 7:8];
 %% 12 Hz
 %sti_f_ref = 60 ./ [3:12];
 %file = 'ssvep-switch-train-12Hz-Indra-train-[2016.12.07-15.11.04].gdf'; sti_f = 12;
-%file = 'ssvep-switch-train-12Hz-Indra-[2017.01.12-18.33.54].gdf'; sti_f = 12; % Not Good
 %file = 'ssvep-switch-train-12Hz-Shiva-[2017.01.10-20.45.21].gdf'; sti_f = 12;
 %file = 'ssvep-switch-train-12Hz-Shiva-[2017.01.12-20.24.08].gdf'; sti_f = 12;
 %file = 'ssvep-switch-train-12Hz-Shiva-[2017.01.12-19.16.35].gdf'; sti_f = 12; % Not Good
