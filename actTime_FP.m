@@ -52,7 +52,7 @@ h.EVENT.WIN_NUM = 1 + (h.EVENT.POS - 1) / jump;
 % generate reference signals from 1 to 20 Hz.
 %sti_f_ref = 1:20;
 %sti_f_ref = 60 ./ [4:10, 14]; % use this only for 60/7 = 8.57 Hz flicker
-sti_f_ref = 60 ./ [3:8];
+sti_f_ref = 60 ./ [3:10];
 targetFlickerIndex = find(ismember(sti_f_ref, sti_f));
 refSignals = ck_signal_windowed(sti_f_ref, windowTime, fs);
 
