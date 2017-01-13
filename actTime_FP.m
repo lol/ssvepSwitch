@@ -1,13 +1,18 @@
-%clc;
+clc;
 clear all;
 close all;
 
-file = 'ssvep-switch-train-15Hz-Indra-train-[2016.12.07-16.03.31].gdf';
+%file = 'ssvep-switch-train-15Hz-Indra-train-[2016.12.07-16.03.31].gdf';
 %file = 'ssvep-switch-train-12Hz-Indra-train-[2016.12.07-15.11.04].gdf';
 %file = 'ssvep-switch-train-8Hz-Indra-train-[2016.12.07-18.19.00].gdf';
 %file = 'ssvep-switch-train-15Hz-Shiva-[2017.01.10-21.33.50].gdf';
 %file = 'ssvep-switch-train-12Hz-Shiva-[2017.01.10-20.45.21].gdf';
 %file = 'ssvep-switch-train-8Hz-Shiva-[2017.01.10-21.26.42].gdf';
+% Jan 12
+%file = 'ssvep-switch-train-12Hz-Shiva-[2017.01.12-20.24.08].gdf';
+%file = 'ssvep-switch-train-10Hz-Shiva-[2017.01.12-20.11.36].gdf';
+file = 'ssvep-switch-train-15Hz-Shiva-[2017.01.12-19.59.36].gdf';
+%sti_f = 10;
 sti_f = 15;
 %sti_f = 12;
 %sti_f = 60/7;
@@ -52,7 +57,7 @@ h.EVENT.WIN_NUM = 1 + (h.EVENT.POS - 1) / jump;
 % generate reference signals from 1 to 20 Hz.
 %sti_f_ref = 1:20;
 %sti_f_ref = 60 ./ [4:10, 14]; % use this only for 60/7 = 8.57 Hz flicker
-sti_f_ref = 60 ./ [3:10];
+sti_f_ref = 60 ./ [3:12];
 targetFlickerIndex = find(ismember(sti_f_ref, sti_f));
 refSignals = ck_signal_windowed(sti_f_ref, windowTime, fs);
 
@@ -87,6 +92,11 @@ for i = 1:numWindows
             n = n + 1; % for False positive checking in NC period. Look for NC_period_start(n)
         end
     else
+        % Place a zero in the detectionWin array if no detection was made
+        if startDetection == 1 && alreadyDetected == 0
+            detectionWin(k) = 0;
+            k = k + 1;
+        end
         true_label(i) = 0;
         startDetection = 0;
         alreadyDetected = 0;
@@ -114,16 +124,21 @@ for i = 1:numWindows
     end
            
 end
-%elseif i-4 > 0 && i < IC_marker(j) && i > IC_endMarker(m) && startDetection == 0 && all(result(i-4:i) == sti_f) && prevFP < i-4
 
 %startFlickerWin
 %detectionWin
 compareTrueWithResult = [true_label', result'];
 
 falsePositive
-% there can be a dimension mismatch between the number of detections and
-% IC_marker
+
+numFalsePositives = length(falsePositive(falsePositive > 0));
+fprintf(1, 'Number of False Positives = %d\n\n', numFalsePositives);
+
+% Negative act_time means missed detection for that trial.
 act_time = 0.1 * (detectionWin - IC_marker(1:end-1)') + jumpTime
 
-% act_Time = 0.1 * (detectionWin'+20 - IC_marker(1:end-1))
-% Shiva 15 Hz, Channel 3, 4 only = bug
+numDetections = length(act_time(act_time > 0));
+fprintf(1, 'Number of Detections = %d\n\n', numDetections);
+if(numDetections ~= 15)
+    fprintf(1, 'Number of Detections missed = %d\n\n', 15 - numDetections);
+end
