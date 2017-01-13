@@ -57,11 +57,13 @@ targetFlickerIndex = find(ismember(sti_f_ref, sti_f));
 refSignals = ck_signal_windowed(sti_f_ref, windowTime, fs);
 
 IC_marker = h.EVENT.WIN_NUM(h.EVENT.TYP == 33025);
-IC_marker = [IC_marker; numWindows + 1];
+IC_marker = [IC_marker; IC_marker(end) + IC_marker(2) - IC_marker(1)];
 IC_endMarker = [IC_marker + 70];
 
-NC_marker = h.EVENT.WIN_NUM(h.EVENT.TYP == 33024);
-NC_marker = [NC_marker; numWindows + 1];
+%NC_marker = h.EVENT.WIN_NUM(h.EVENT.TYP == 33024);
+%NC_marker = [NC_marker; numWindows + 1];
+
+NC_period_start = IC_marker - 130;
 
 
 % 5 is the IC time duration
@@ -70,6 +72,7 @@ numWindowsInOneTrial = 5 / jumpTime;
 j = 1;
 k = 1;
 m = 1;
+n = 1;
 prevFP = 0;
 startDetection = 0;
 alreadyDetected = 0;
@@ -81,6 +84,7 @@ for i = 1:numWindows
         if alreadyDetected == 0 && startDetection == 0
             startDetection = 1;
             startFlickerWin(j) = i;  % Window# of flicker start
+            n = n + 1; % for False positive checking in NC period. Look for NC_period_start(n)
         end
     else
         true_label(i) = 0;
@@ -101,7 +105,7 @@ for i = 1:numWindows
         detectionWin(k) = i;    
         alreadyDetected = 1;
         k = k + 1;
-    elseif i-4 > 0 && i < IC_marker(j) && i > NC_marker(j) && startDetection == 0 && all(result(i-4:i) == sti_f) && prevFP < i-4
+    elseif i-4 > 0 && i-4 > NC_period_start(n) && startDetection == 0 && all(result(i-4:i) == sti_f) && prevFP < i-4
         if i ~= prevFP + 5
             falsePositive(m) = i;
         end
